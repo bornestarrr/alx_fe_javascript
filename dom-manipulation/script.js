@@ -59,8 +59,13 @@ function showRandomQuote() {
 
   let filteredQuotes = quotes;
 
-  if (categoryFilter && categoryFilter.value !== 'all') {
-    filteredQuotes = quotes.filter(q => q.category.toLowerCase() === categoryFilter.value.toLowerCase());
+  let selectedCategory = 'all';
+  if (categoryFilter) {
+    selectedCategory = categoryFilter.value;
+  }
+
+  if (selectedCategory !== 'all') {
+    filteredQuotes = quotes.filter(q => q.category.toLowerCase() === selectedCategory.toLowerCase());
   }
 
   if (filteredQuotes.length === 0) {
