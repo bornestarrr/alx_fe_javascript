@@ -266,7 +266,7 @@ async function syncQuotes() {
   const updated = mergeQuotes(serverQuotes);
 
   if (updated) {
-    showSyncStatus('Data synced with server. Local data updated.', true);
+    showSyncStatus('Quotes synced with server!', true);
   } else {
     showSyncStatus('No new data from server. Local data is up-to-date.', false);
   }
@@ -278,7 +278,7 @@ function startAutoSync() {
     if (serverQuotes) {
       const updated = mergeQuotes(serverQuotes);
       if (updated) {
-        showSyncStatus('Data synced with server. Local data updated.', true);
+        showSyncStatus('Quotes synced with server!', true);
       }
     }
   }, 30000);
