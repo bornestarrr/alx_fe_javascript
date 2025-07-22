@@ -195,6 +195,24 @@ async function fetchQuotesFromServer() {
   }
 }
 
+async function postQuotesToServer() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(quotes)
+    });
+
+    if (!response.ok) throw new Error('Failed to post quotes to server');
+    const data = await response.json();
+    console.log('Successfully posted quotes:', data);
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
 function mergeQuotes(serverQuotes) {
   if (!serverQuotes) return false;
 
@@ -231,9 +249,19 @@ function showSyncStatus(message, success) {
 
 async function manualSync() {
   showSyncStatus('Syncing with server...', true);
+
+  // First POST local quotes to server (simulation)
+  const postResult = await postQuotesToServer();
+
+  if (!postResult) {
+    showSyncStatus('Failed to post data to server.', false);
+    return;
+  }
+
+  // Then GET quotes from server and merge
   const serverQuotes = await fetchQuotesFromServer();
   if (serverQuotes === null) {
-    showSyncStatus('Failed to sync with server.', false);
+    showSyncStatus('Failed to fetch data from server.', false);
     return;
   }
 
