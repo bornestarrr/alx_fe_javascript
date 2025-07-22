@@ -247,10 +247,9 @@ function showSyncStatus(message, success) {
   }, 5000);
 }
 
-async function manualSync() {
+async function syncQuotes() {
   showSyncStatus('Syncing with server...', true);
 
-  // First POST local quotes to server (simulation)
   const postResult = await postQuotesToServer();
 
   if (!postResult) {
@@ -258,7 +257,6 @@ async function manualSync() {
     return;
   }
 
-  // Then GET quotes from server and merge
   const serverQuotes = await fetchQuotesFromServer();
   if (serverQuotes === null) {
     showSyncStatus('Failed to fetch data from server.', false);
@@ -274,8 +272,6 @@ async function manualSync() {
   }
 }
 
-// Periodic auto-sync every 30 seconds
-
 function startAutoSync() {
   setInterval(async () => {
     const serverQuotes = await fetchQuotesFromServer();
@@ -287,8 +283,6 @@ function startAutoSync() {
     }
   }, 30000);
 }
-
-// ======= Initialization =======
 
 window.onload = () => {
   loadQuotes();
@@ -312,7 +306,7 @@ window.onload = () => {
   }
 
   const syncBtn = document.getElementById('syncNowButton');
-  if (syncBtn) syncBtn.addEventListener('click', manualSync);
+  if (syncBtn) syncBtn.addEventListener('click', syncQuotes);
 
   startAutoSync();
 };
