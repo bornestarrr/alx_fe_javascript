@@ -22,7 +22,7 @@ function saveQuotes() {
 
 const categoryFilter = document.getElementById('categoryFilter');
 
-function populateCategoryDropdown() {
+function populateCategories() {
   if (!categoryFilter) return;
 
   // Get unique categories (case-insensitive)
@@ -123,7 +123,7 @@ function addQuote() {
   saveQuotes();
 
   // Update category dropdown for project 3
-  populateCategoryDropdown();
+  populateCategories();
 
   document.getElementById('newQuoteText').value = '';
   document.getElementById('newQuoteCategory').value = '';
@@ -145,7 +145,7 @@ function importFromJsonFile(event) {
       if (Array.isArray(importedQuotes)) {
         quotes.push(...importedQuotes);
         saveQuotes();
-        populateCategoryDropdown();
+        populateCategories();
         alert('Quotes imported successfully!');
       } else {
         alert('Invalid JSON format.');
@@ -209,7 +209,7 @@ function mergeQuotes(serverQuotes) {
 
   if (updated) {
     saveQuotes();
-    populateCategoryDropdown();
+    populateCategories();
     showSyncStatus('Data synced with server. Local data updated.', true);
   } else {
     showSyncStatus('No new data from server. Local data is up-to-date.', false);
@@ -237,4 +237,36 @@ async function manualSync() {
 // ======= Initialization =======
 
 window.onload = () => {
-  lo
+  loadQuotes();
+
+  // Show last quote or random one
+  const lastQuote = sessionStorage.getItem('lastQuote');
+  if (lastQuote) {
+    const q = JSON.parse(lastQuote);
+    document.getElementById('quoteDisplay').textContent = `"${q.text}" - ${q.category}`;
+  } else {
+    showRandomQuote();
+  }
+
+  createAddQuoteForm();
+
+  // Populate categories dropdown (project 3)
+  populateCategories();
+
+  // Event listeners
+  const newQuoteBtn = document.getElementById('newQuote');
+  if (newQuoteBtn) newQuoteBtn.addEventListener('click', showRandomQuote);
+
+  if (categoryFilter) {
+    categoryFilter.addEventListener('change', showRandomQuote);
+  }
+
+  const syncBtn = document.getElementById('syncNowButton');
+  if (syncBtn) syncBtn.addEventListener('click', manualSync);
+
+  // Periodic sync every 30 seconds
+  setInterval(async () => {
+    const serverQuotes = await fetchServerQuotes();
+    mergeQuotes(serverQuotes);
+  }, 30000);
+};
