@@ -179,7 +179,7 @@ function exportToJsonFile() {
 
 const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts?_limit=5';
 
-async function fetchServerQuotes() {
+async function fetchQuotesFromServer() {
   try {
     const response = await fetch(SERVER_URL);
     if (!response.ok) throw new Error('Failed to fetch from server');
@@ -231,7 +231,7 @@ function showSyncStatus(message, success) {
 
 async function manualSync() {
   showSyncStatus('Syncing with server...', true);
-  const serverQuotes = await fetchServerQuotes();
+  const serverQuotes = await fetchQuotesFromServer();
   if (serverQuotes === null) {
     showSyncStatus('Failed to sync with server.', false);
     return;
@@ -250,7 +250,7 @@ async function manualSync() {
 
 function startAutoSync() {
   setInterval(async () => {
-    const serverQuotes = await fetchServerQuotes();
+    const serverQuotes = await fetchQuotesFromServer();
     if (serverQuotes) {
       const updated = mergeQuotes(serverQuotes);
       if (updated) {
