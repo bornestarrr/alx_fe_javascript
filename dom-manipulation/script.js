@@ -25,21 +25,17 @@ const categoryFilter = document.getElementById('categoryFilter');
 function populateCategories() {
   if (!categoryFilter) return;
 
-  // Get unique categories (case-insensitive)
   const categories = [...new Set(quotes.map(q => q.category.toLowerCase()))];
 
-  // Clear current options
   while (categoryFilter.firstChild) {
     categoryFilter.removeChild(categoryFilter.firstChild);
   }
 
-  // Add "All" option
   const allOption = document.createElement('option');
   allOption.value = 'all';
   allOption.textContent = 'All';
   categoryFilter.appendChild(allOption);
 
-  // Add categories as options
   categories.forEach(cat => {
     const option = document.createElement('option');
     option.value = cat;
@@ -92,24 +88,20 @@ function createAddQuoteForm() {
   const container = document.getElementById('formContainer');
   if (!container) return;
 
-  // Clear container
   while (container.firstChild) {
     container.removeChild(container.firstChild);
   }
 
-  // Quote text input
   const textInput = document.createElement('input');
   textInput.id = 'newQuoteText';
   textInput.type = 'text';
   textInput.placeholder = 'Enter a new quote';
 
-  // Category input
   const categoryInput = document.createElement('input');
   categoryInput.id = 'newQuoteCategory';
   categoryInput.type = 'text';
   categoryInput.placeholder = 'Enter quote category';
 
-  // Add button
   const addButton = document.createElement('button');
   addButton.textContent = 'Add Quote';
   addButton.addEventListener('click', addQuote);
@@ -132,8 +124,6 @@ function addQuote() {
 
   quotes.push({ text, category });
   saveQuotes();
-
-  // Update category dropdown for project 3
   populateCategories();
 
   document.getElementById('newQuoteText').value = '';
@@ -167,7 +157,6 @@ function importFromJsonFile(event) {
   };
 
   reader.readAsText(file);
-
   event.target.value = ''; // reset input
 }
 
@@ -186,11 +175,13 @@ function exportToJsonFile() {
   URL.revokeObjectURL(url);
 }
 
-// ======= Project 4: Server Sync Simulation =======
+// ======= Project 4: Server Sync Simulation and Conflict Handling =======
+
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts?_limit=5';
 
 async function fetchServerQuotes() {
   try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
+    const response = await fetch(SERVER_URL);
     if (!response.ok) throw new Error('Failed to fetch from server');
     const posts = await response.json();
 
@@ -205,7 +196,7 @@ async function fetchServerQuotes() {
 }
 
 function mergeQuotes(serverQuotes) {
-  if (!serverQuotes) return;
+  if (!serverQuotes) return false;
 
   let updated = false;
 
@@ -221,10 +212,9 @@ function mergeQuotes(serverQuotes) {
   if (updated) {
     saveQuotes();
     populateCategories();
-    showSyncStatus('Data synced with server. Local data updated.', true);
-  } else {
-    showSyncStatus('No new data from server. Local data is up-to-date.', false);
   }
+
+  return updated;
 }
 
 function showSyncStatus(message, success) {
@@ -242,7 +232,32 @@ function showSyncStatus(message, success) {
 async function manualSync() {
   showSyncStatus('Syncing with server...', true);
   const serverQuotes = await fetchServerQuotes();
-  mergeQuotes(serverQuotes);
+  if (serverQuotes === null) {
+    showSyncStatus('Failed to sync with server.', false);
+    return;
+  }
+
+  const updated = mergeQuotes(serverQuotes);
+
+  if (updated) {
+    showSyncStatus('Data synced with server. Local data updated.', true);
+  } else {
+    showSyncStatus('No new data from server. Local data is up-to-date.', false);
+  }
+}
+
+// Periodic auto-sync every 30 seconds
+
+function startAutoSync() {
+  setInterval(async () => {
+    const serverQuotes = await fetchServerQuotes();
+    if (serverQuotes) {
+      const updated = mergeQuotes(serverQuotes);
+      if (updated) {
+        showSyncStatus('Data synced with server. Local data updated.', true);
+      }
+    }
+  }, 30000);
 }
 
 // ======= Initialization =======
@@ -250,7 +265,6 @@ async function manualSync() {
 window.onload = () => {
   loadQuotes();
 
-  // Show last quote or random one
   const lastQuote = sessionStorage.getItem('lastQuote');
   if (lastQuote) {
     const q = JSON.parse(lastQuote);
@@ -260,11 +274,8 @@ window.onload = () => {
   }
 
   createAddQuoteForm();
-
-  // Populate categories dropdown (project 3)
   populateCategories();
 
-  // Event listeners
   const newQuoteBtn = document.getElementById('newQuote');
   if (newQuoteBtn) newQuoteBtn.addEventListener('click', showRandomQuote);
 
@@ -275,9 +286,5 @@ window.onload = () => {
   const syncBtn = document.getElementById('syncNowButton');
   if (syncBtn) syncBtn.addEventListener('click', manualSync);
 
-  // Periodic sync every 30 seconds
-  setInterval(async () => {
-    const serverQuotes = await fetchServerQuotes();
-    mergeQuotes(serverQuotes);
-  }, 30000);
+  startAutoSync();
 };
