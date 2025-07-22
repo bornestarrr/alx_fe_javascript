@@ -2,25 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dynamic Quote Generator</title>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <button id="newQuote">Generate New Quote</button>
-  <p id="quoteDisplay">Click the button to display a quote.</p>
+  <!-- Project 3: Category Filter -->
+  <label for="categoryFilter">Filter by Category:</label>
+  <select id="categoryFilter"></select>
 
-  <!-- Input form for adding a quote (JS appends form elements) -->
+  <!-- Quote display and new quote button -->
+  <p id="quoteDisplay">Click the button to display a quote.</p>
+  <button id="newQuote">Generate New Quote</button>
+
+  <!-- Container for Add Quote Form (Project 1) -->
   <div id="formContainer"></div>
 
-  <!-- Import/Export -->
+  <!-- Import/Export Controls -->
   <div style="margin-top: 20px;">
     <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
     <button onclick="exportToJsonFile()">Export Quotes</button>
   </div>
 
-  <!-- Sync controls -->
+  <!-- Sync Controls (Project 4) -->
   <div id="syncContainer" style="margin-top: 20px;">
     <button id="syncNowButton">Sync Now</button>
     <p id="syncStatus" style="color: green;"></p>
