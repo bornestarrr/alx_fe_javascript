@@ -75,6 +75,12 @@ function showRandomQuote() {
   sessionStorage.setItem('lastQuote', JSON.stringify(randomQuote));
 }
 
+// ======= New: filterQuote function for Project 3 test =======
+
+function filterQuote() {
+  showRandomQuote();
+}
+
 // ======= Project 1: Add Quote Form (no innerHTML) =======
 
 function createAddQuoteForm() {
@@ -258,7 +264,7 @@ window.onload = () => {
   if (newQuoteBtn) newQuoteBtn.addEventListener('click', showRandomQuote);
 
   if (categoryFilter) {
-    categoryFilter.addEventListener('change', showRandomQuote);
+    categoryFilter.addEventListener('change', filterQuote);
   }
 
   const syncBtn = document.getElementById('syncNowButton');
